@@ -1,0 +1,102 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using MySql.Data.MySqlClient;
+
+namespace Login
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void btnClose_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
+        }
+
+        private void btnMinimize_Click(object sender, EventArgs e)
+        {
+            this.WindowState = FormWindowState.Minimized;
+        }
+
+        MySqlConnection con = new MySqlConnection();
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            txbUsername.Select();
+
+            string server = "localhost";
+            string database = "login";
+            string uid = "root";
+            string password = "5555";
+
+            string conStr = "Server=" + server + ";Database=" + database + ";User Id=" + uid + ";Password=" + password + ";";
+            con = new MySqlConnection(conStr);
+
+            try
+            {
+                con.Open();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Can't connect database","ERROR!!",MessageBoxButtons.OK);
+            }
+
+        }
+
+        private void showPassword_Click(object sender, EventArgs e)
+        {
+            if (txbPassword.UseSystemPasswordChar)
+            {
+                txbPassword.UseSystemPasswordChar = false;
+            }
+            else
+            {
+                txbPassword.UseSystemPasswordChar = true;
+            }
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            if (txbUsername.Text == "" || txbPassword.Text == "")
+            {
+                lbStatus.Visible = true;
+                lbStatus.Text = "Username or Password incorrect!";
+                txbUsername.Select();
+                txbUsername.Text = "";
+                txbPassword.Text = "";
+            }
+            else
+            {
+                string sql = "SELECT * FROM user WHERE username = '" +txbUsername.Text+ "' AND password = '" +txbPassword.Text+ "'";
+
+                MySqlDataAdapter mySqlDataAdapter = new MySqlDataAdapter(sql, con);
+                DataTable dataTable = new DataTable();
+                mySqlDataAdapter.Fill(dataTable);
+
+                if(dataTable.Rows.Count > 0)
+                {
+                    MessageBox.Show("Merry Christmas :)", "Connected !", MessageBoxButtons.OK);
+                }
+                else
+                {
+                    lbStatus.Visible = true;
+                    lbStatus.Text = "Username or Password incorrect!";
+                    txbUsername.Select();
+                    txbUsername.Text = "";
+                    txbPassword.Text = "";
+                }
+
+            }
+        }
+    }
+}
